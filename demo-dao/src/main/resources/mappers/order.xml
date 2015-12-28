@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oceanus.demo.dao.OrderInfoMapper">
+    <resultMap type="OrderInfo" id="resultListOrderInfo">
+        <id column="id" property="id" />
+        <result column="tenant" property="tenant" />
+        <result column="order_number" property="orderNumber" />
+        <result column="goods_number" property="goodsNumber" />
+        <result column="manual_number" property="manualNumber" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="place_loading" property="placeOfLoading" />
+        <result column="send_company" property="sendCompany" />
+        <result column="receive_company" property="receiveCompany" />
+        <result column="unload_place" property="unloadPlace" />
+        <result column="total_number" property="totalNumber" />
+        <result column="order_create_time" property="orderCreateTime" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+    <insert id="save" parameterType="com.oceanus.demo.model.OrderInfo" keyProperty="id" >
+       insert into t_order (id, tenant, order_number, goods_number, manual_number, serial_number, place_loading, send_company, receive_company, unload_place, total_number, order_create_time)values(#{id}, #{tenant},#{orderNumber}, #{goodsNumber}, #{manualNumber}, #{serialNumber}, #{placeOfLoading}, #{sendCompany}, #{receiveCompany}, #{unloadPlace}, #{totalNumber}, #{orderCreateTime})
+    </insert>
+    <select id="findByTenantAndSerialNumber" parameterType="com.oceanus.demo.model.OrderInfo"  resultMap="resultListOrderInfo" useCache="false">
+        select * from t_order where tenant =#{tenant} and serial_number=#{serialNumber} order by create_time desc
+    </select>
+
+</mapper>

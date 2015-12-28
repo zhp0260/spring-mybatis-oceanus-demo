@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+http://www.springframework.org/schema/tx 
+http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+http://www.springframework.org/schema/aop 
+http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+">
+    <bean id="dataSource" class="com.oceanus.demo.dao.db.OceanusDataSourceFactoryBean">
+        <property name="properties">
+            <value>
+                driver=com.mysql.jdbc.Driver
+                url=jdbc:mysql://127.0.0.1:3306/demo?createDatabaseIfNotExist=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnect=true
+                username=root
+                password=123456
+                initialSize=3
+                maxActive=50
+                maxWait=5000
+                maxIdle=5
+                minIdle=5
+                timeBetweenEvictionRunsMillis=3600000
+                minEvictableIdleTimeMillis=3600000
+                testOnBorrow=true
+                validationQuery=select 1
+            </value>
+        </property>
+
+    </bean>
+
+
+    <!-- 与mybatis集成 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!-- mybatis配置文件自动扫描路径 -->
+        <property name="mapperLocations">
+            <array>
+                <value>classpath:mappers/*.xml</value>
+            </array>
+        </property>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.oceanus.demo.dao" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+    <!--<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+        <!--<property name="dataSource" ref="dataSource"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; enable transaction annotation support &ndash;&gt;-->
+    <!--<tx:annotation-driven transaction-manager="txManager"/>-->
+
+
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="add*" propagation="REQUIRED" />
+            <tx:method name="append*" propagation="REQUIRED" />
+            <tx:method name="insert*" propagation="REQUIRED" />
+            <tx:method name="save*" propagation="REQUIRED" />
+            <tx:method name="update*" propagation="REQUIRED" />
+            <tx:method name="modify*" propagation="REQUIRED" />
+            <tx:method name="edit*" propagation="REQUIRED" />
+            <tx:method name="delete*" propagation="REQUIRED" />
+            <tx:method name="remove*" propagation="REQUIRED" />
+            <tx:method name="repair" propagation="REQUIRED" />
+            <tx:method name="delAndRepair" propagation="REQUIRED" />
+            <tx:method name="get*" propagation="SUPPORTS" />
+            <tx:method name="find*" propagation="SUPPORTS" />
+            <tx:method name="load*" propagation="SUPPORTS" />
+            <tx:method name="search*" propagation="SUPPORTS" />
+            <tx:method name="datagrid*" propagation="SUPPORTS" />
+            <tx:method name="*" propagation="SUPPORTS" />
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="transactionPointcut"
+                      expression="execution(* com.oceanus.demo.service.impl.*.*Service*(..))" />
+        <aop:advisor pointcut-ref="transactionPointcut"
+                     advice-ref="transactionAdvice" />
+    </aop:config>
+</beans>
